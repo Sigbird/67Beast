@@ -7,6 +7,8 @@ public class CharacterController : MonoBehaviour
     public float moveSpeed = 5f;  // Velocidade de movimento do personagem
     public float jumpForce = 10f; // Força do salto
 
+    public JoystickHandler joystick;
+
     public Collider[] hands;
 
     // Variáveis de controle de movimento
@@ -24,19 +26,21 @@ public class CharacterController : MonoBehaviour
     void Update()
     {
         // Captura dos inputs do joystick (Mobile)
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
+        float horizontal = joystick.Horizontal();//Input.GetAxis("Horizontal");
+        float vertical = joystick.Vertical();//Input.GetAxis("Vertical");
 
-        if (Input.GetKeyDown(KeyCode.B)) Punch();
+        //if (Input.GetKeyDown(KeyCode.B)) Punch();
 
         // Calcula o vetor de movimento baseado nos inputs
-        moveInput = new Vector3(vertical, 0f, -horizontal).normalized;
+        moveInput = new Vector3(-vertical, 0f, horizontal).normalized;
+
+
 
         // Verifica se o jogador pressionou o botão de salto
-        if (Input.GetButtonDown("Jump"))
-        {
-            Jump();
-        }
+        //if (Input.GetButtonDown("Jump"))
+        //{
+       //     Jump();
+        //}
 
         // Atualiza a animação baseada nos inputs de movimento
         UpdateAnimator();
@@ -64,7 +68,7 @@ public class CharacterController : MonoBehaviour
         }
     }
 
-    void Jump()
+    /*void Jump()
     {
         if (!isJumping)
         {
@@ -73,7 +77,7 @@ public class CharacterController : MonoBehaviour
             moveSpeed = 3;
         }
     }
-
+*/
     void UpdateAnimator()
     {
         // Atualiza os parâmetros do Animator
@@ -85,11 +89,9 @@ public class CharacterController : MonoBehaviour
         {
             animator.SetFloat("MoveSpeed", moveInput.magnitude);
         }
-
-        animator.SetBool("IsJumping", isJumping);
     }
 
-    void Punch()
+   /* void Punch()
     {
         animator.SetTrigger("Punch");
         Invoke(nameof(EnableFirsts), 0.3f);
@@ -106,7 +108,7 @@ public class CharacterController : MonoBehaviour
     {
         hands[0].enabled = false;
         hands[1].enabled = false;
-    }
+    }*/
 
     // Callback quando o personagem colide com o chão
     void OnCollisionEnter(Collision collision)

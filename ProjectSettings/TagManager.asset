@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Ground
   - Hand
+  - Enemy
+  - DeliverZone
   layers:
   - Default
   - TransparentFX
