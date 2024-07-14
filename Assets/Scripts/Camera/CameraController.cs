@@ -1,26 +1,23 @@
 using UnityEngine;
 
+/// <summary>
+/// Basic camera controller script to follow the player keeping a fixed angle and distance.
+/// </summary>
 public class CameraController : MonoBehaviour
 {
-    // Referência ao transform do personagem
-    public Transform target;
+    [Tooltip("Player transform reference.")]
+    [SerializeField] private Transform target;
+    [Tooltip("Distance Offset")]
+    [SerializeField] private Vector3 offset = new Vector3(0, 5, -10);
+    [Tooltip("Camera Smootness")]
+    [SerializeField] private float smoothSpeed = 0.125f;
 
-    // Distância e ângulo fixos
-    public Vector3 offset = new Vector3(0, 5, -10);
-    public float smoothSpeed = 0.125f;
-
-    void LateUpdate()
+    private void LateUpdate()
     {
-        // Calcula a posição desejada da câmera
-        Vector3 desiredPosition = target.position + offset;
-        
-        // Interpola suavemente entre a posição atual e a posição desejada
-        Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
-        
-        // Atualiza a posição da câmera
-        transform.position = smoothedPosition;
+        // Lerp its position to follow the target
+        transform.position = Vector3.Lerp(transform.position, (target.position + offset), smoothSpeed);
 
-        // Mantém a câmera olhando para o alvo
+        // Keep focused on the Target
         transform.LookAt(target);
     }
 }

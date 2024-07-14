@@ -1,19 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Keeps the reference and access to the main variables of the game
+/// </summary>
 public class GameManager : MonoBehaviour
 {
-
     public static int CapturedEnemies;
     public static int PlayerCapacity = 4;
-    public static UiManager uiManager;
+    public static UiManager UiManager;
     public static int PlayerCash = 0;
+    public static CharacterController characterController;
 
-    void Start()
+    private void Start()
     {
-        uiManager = FindAnyObjectByType<UiManager>();
+        characterController = FindAnyObjectByType<CharacterController>();
 
-        uiManager.GameScoreText.text = "Capacity:\n" + CapturedEnemies + "/" + PlayerCapacity;
+        //Get the UI manager reference and reset it.
+        UiManager = FindAnyObjectByType<UiManager>();
+        UiManager.GameScoreText.text = "Capacity:\n" + CapturedEnemies + "/" + PlayerCapacity;
     }
 }

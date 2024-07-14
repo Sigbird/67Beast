@@ -1,0 +1,10 @@
+{
+  "msbuild": {
+    "enabled": true,
+    "useBundledOnly": true
+  },
+  "RoslynExtensionsOptions": {
+    "enableAnalyzersSupport": true,
+    "enableEditorConfigSupport": true
+  }
+}

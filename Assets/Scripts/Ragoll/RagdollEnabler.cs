@@ -1,43 +1,63 @@
-using System;
-using System.Collections;
-using System.Text.RegularExpressions;
 using UnityEngine;
-using DG.Tweening;
 
+/// <summary>
+/// Component with the references to the ragdoll of the enemies, and implementing the rigidbody methods to enable and disable them.
+/// </summary>
 public class RagdollEnabler : MonoBehaviour
 {
-    [SerializeField]
-    public Animator Animator;
-    [SerializeField]
-    public Transform RagdollRoot;
-    public Transform PlayerBag;
-    [SerializeField]
-    public bool StartRagdoll = false;
-    // Only public for Ragdoll Runtime GUI for explosive force
-    public Rigidbody[] Rigidbodies;
-    public CharacterJoint[] Joints;
-    public Collider[] Colliders;
-
-    private Boolean Captured;
-    private int StackPosition = 0;
-
+    [Tooltip("Ragdoll root of the enemy")]
+    [SerializeField] private Transform _ragdollRoot;
+    private Rigidbody[] _rigidbodies;
+    private CharacterJoint[] _joints;
+    private Collider[] _colliders;
+    private Animator _animator;
 
     private void Awake()
     {
-        Rigidbodies = RagdollRoot.GetComponentsInChildren<Rigidbody>();
-        Joints = RagdollRoot.GetComponentsInChildren<CharacterJoint>();
-        Colliders = RagdollRoot.GetComponentsInChildren<Collider>();
-
+        _animator = transform.GetComponent<Animator>();
+        _rigidbodies = _ragdollRoot.GetComponentsInChildren<Rigidbody>();
+        _joints = _ragdollRoot.GetComponentsInChildren<CharacterJoint>();
+        _colliders = _ragdollRoot.GetComponentsInChildren<Collider>();
     }
 
+    /// <summary>
+    /// Toggles the Ragdoll called by the Punch Handler of the player
+    /// </summary>
+    /// <param name="toggle">True will enable the ragdoll of the character</param>
+    public void ToggleRagdoll(bool toggle)
+    {
+        //Disable the animator
+        _animator.enabled = !toggle;
 
+        //Enable Joints
+        foreach (CharacterJoint joint in _joints)
+        {
+            joint.enableCollision = toggle;
+        }
 
+        //Enable Collider
+        foreach (Collider collider in _colliders)
+        {
+            collider.enabled = toggle;
+        }
 
+        //Enables the gravity and detectCollisions
+        foreach (Rigidbody rigidbody in _rigidbodies)
+        {
+            rigidbody.detectCollisions = toggle;
+            rigidbody.useGravity = toggle;
+        }
+    }
 
-
-
-
-
-
-
+    /// <summary>
+    /// Simulates the explosion when called by the Punch Handler
+    /// </summary>
+    /// <param name="pos"></param>
+    public void ReceiveExplosion(Vector3 pos)
+    {
+        foreach (Rigidbody rigidbody in _rigidbodies)
+        {
+            rigidbody.AddExplosionForce(1000, pos, 100, 1);
+        }
+    }
 }
