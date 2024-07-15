@@ -1,119 +1,63 @@
-using System;
-using System.Collections;
-using System.Text.RegularExpressions;
 using UnityEngine;
-using DG.Tweening;
 
+/// <summary>
+/// Component with the references to the ragdoll of the enemies, and implementing the rigidbody methods to enable and disable them.
+/// </summary>
 public class RagdollEnabler : MonoBehaviour
 {
-    [SerializeField]
-    public Animator Animator;
-    [SerializeField]
-    public Transform RagdollRoot;
-    public Transform PlayerBag;
-    [SerializeField]
-    public bool StartRagdoll = false;
-    // Only public for Ragdoll Runtime GUI for explosive force
-    public Rigidbody[] Rigidbodies;
-    private CharacterJoint[] Joints;
-    private Collider[] Colliders;
-
-    private Boolean Captured;
+    [Tooltip("Ragdoll root of the enemy")]
+    [SerializeField] private Transform _ragdollRoot;
+    private Rigidbody[] _rigidbodies;
+    private CharacterJoint[] _joints;
+    private Collider[] _colliders;
+    private Animator _animator;
 
     private void Awake()
     {
-        Rigidbodies = RagdollRoot.GetComponentsInChildren<Rigidbody>();
-        Joints = RagdollRoot.GetComponentsInChildren<CharacterJoint>();
-        Colliders = RagdollRoot.GetComponentsInChildren<Collider>();
+        _animator = transform.GetComponent<Animator>();
+        _rigidbodies = _ragdollRoot.GetComponentsInChildren<Rigidbody>();
+        _joints = _ragdollRoot.GetComponentsInChildren<CharacterJoint>();
+        _colliders = _ragdollRoot.GetComponentsInChildren<Collider>();
+    }
 
-        if (StartRagdoll)
+    /// <summary>
+    /// Toggles the Ragdoll called by the Punch Handler of the player
+    /// </summary>
+    /// <param name="toggle">True will enable the ragdoll of the character</param>
+    public void ToggleRagdoll(bool toggle)
+    {
+        //Disable the animator
+        _animator.enabled = !toggle;
+
+        //Enable Joints
+        foreach (CharacterJoint joint in _joints)
         {
-            EnableRagdoll();
+            joint.enableCollision = toggle;
         }
-        else
+
+        //Enable Collider
+        foreach (Collider collider in _colliders)
         {
-            EnableAnimator();
+            collider.enabled = toggle;
+        }
+
+        //Enables the gravity and detectCollisions
+        foreach (Rigidbody rigidbody in _rigidbodies)
+        {
+            rigidbody.detectCollisions = toggle;
+            rigidbody.useGravity = toggle;
         }
     }
 
-    void Update()
+    /// <summary>
+    /// Simulates the explosion when called by the Punch Handler
+    /// </summary>
+    /// <param name="pos"></param>
+    public void ReceiveExplosion(Vector3 pos)
     {
-        if (Input.GetKeyDown(KeyCode.I)) EnableRagdoll();
-
-        if (Input.GetKeyDown(KeyCode.O)) EnableAnimator();
-
-        if (Captured) transform.position = PlayerBag.transform.position;
-    }
-
-    public void EnableRagdoll()
-    {
-        Animator.enabled = false;
-        foreach (CharacterJoint joint in Joints)
+        foreach (Rigidbody rigidbody in _rigidbodies)
         {
-            joint.enableCollision = true;
+            rigidbody.AddExplosionForce(1000, pos, 100, 1);
         }
-        foreach (Collider collider in Colliders)
-        {
-            collider.enabled = true;
-        }
-        foreach (Rigidbody rigidbody in Rigidbodies)
-        {
-            rigidbody.velocity = Vector3.zero;
-            rigidbody.detectCollisions = true;
-            rigidbody.useGravity = true;
-        }
-    }
-
-    public void EnableAnimator()
-    {
-        Animator.enabled = true;
-        foreach (CharacterJoint joint in Joints)
-        {
-            joint.enableCollision = false;
-        }
-        foreach (Collider collider in Colliders)
-        {
-            collider.enabled = false;
-        }
-        foreach (Rigidbody rigidbody in Rigidbodies)
-        {
-            rigidbody.detectCollisions = false;
-            rigidbody.useGravity = false;
-        }
-    }
-
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.CompareTag("Hand"))
-        {
-            EnableRagdoll();
-            ReceiveHit(other.ClosestPoint(transform.position));
-        }
-    }
-
-    void ReceiveHit(Vector3 Pos)
-    {
-        foreach (Rigidbody rigidbody in Rigidbodies)
-        {
-            rigidbody.AddExplosionForce(1000, Pos, 100, 1);
-
-            StartCoroutine(MoveToPlayerBag(rigidbody));
-        }
-    }
-
-    IEnumerator MoveToPlayerBag(Rigidbody rb)
-    {
-        yield return new WaitForSeconds(1f);
-        // Calculate the offset from the current position to the target position
-        Vector3 offset = PlayerBag.position - rb.position;
-        this.transform.SetParent(PlayerBag);
-        // Use DoTween to move the Rigidbody to the target position with the specified offset
-        rb.DOMove(Vector3.zero, 0.5f).SetEase(Ease.Linear).OnComplete(() =>
-    {
-        EnableAnimator();
-        transform.eulerAngles = new Vector3(0, 90, 0);
-
-    });
-
     }
 }

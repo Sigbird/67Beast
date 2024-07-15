@@ -1,120 +1,90 @@
 using UnityEngine;
 
+/// <summary>
+/// Base character controller of the player character, implementing the basic movement, animation of movement and collision check with the ground.
+/// </summary>
 public class CharacterController : MonoBehaviour
 {
-    // Referências necessárias
-    public Animator animator;
-    public float moveSpeed = 5f;  // Velocidade de movimento do personagem
-    public float jumpForce = 10f; // Força do salto
+    // References
+    [Tooltip("Base movespeed of the player character")]
+    [SerializeField] private float _moveSpeed = 5f;
+    [Tooltip("Reference of the hand colliders of the character")]
+    [SerializeField] private Collider[] _hands;
+    [Tooltip("Reference to the material of the player character")]
+    [SerializeField] private SkinnedMeshRenderer _playerMaterial;
+    private Animator _animator;
+    private JoystickHandler _joystick;
 
-    public Collider[] hands;
-
-    // Variáveis de controle de movimento
+    // Control movement variables
     private Rigidbody rb;
     private Vector3 moveInput;
 
-    // Variáveis de controle de animação
-    private bool isJumping = false;
-
-    void Start()
+    #region INITIALIZERS
+    private void Start()
     {
+        _joystick = GameObject.Find("Ui_Img_JoystickBackground").GetComponent<JoystickHandler>();
+        _animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
     }
 
-    void Update()
+    private void Update()
     {
-        // Captura dos inputs do joystick (Mobile)
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-
-        if (Input.GetKeyDown(KeyCode.B)) Punch();
-
-        // Calcula o vetor de movimento baseado nos inputs
-        moveInput = new Vector3(vertical, 0f, -horizontal).normalized;
-
-        // Verifica se o jogador pressionou o botão de salto
-        if (Input.GetButtonDown("Jump"))
-        {
-            Jump();
-        }
-
-        // Atualiza a animação baseada nos inputs de movimento
+        moveInput = new Vector3(-_joystick.Vertical(), 0f, _joystick.Horizontal()).normalized;
         UpdateAnimator();
-    }
-
-    void FixedUpdate()
-    {
-        // Move o personagem usando o Rigidbody e os inputs
         MoveCharacter();
     }
+    #endregion
 
-    void MoveCharacter()
+    #region PLAYER MOVEMENT
+    /// <summary>
+    /// Move the character in the world using the move input gathered on the joysticks;
+    /// </summary>
+    private void MoveCharacter()
     {
-        // Calcula o movimento
-        Vector3 movement = moveInput * moveSpeed * Time.fixedDeltaTime;
+        Vector3 targetPosition = transform.position + (moveInput * _moveSpeed * Time.fixedDeltaTime);
 
-        // Move o personagem
-        rb.MovePosition(transform.position + movement);
+        // Clamp the z position to stay within limits
+        targetPosition.z = Mathf.Clamp(targetPosition.z, -20, 20);
+        targetPosition.x = Mathf.Clamp(targetPosition.x, -9, 9);
 
-        // Rotaciona o personagem na direção do movimento
+        rb.MovePosition(targetPosition);
+
         if (moveInput != Vector3.zero)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(moveInput);
-            rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * moveSpeed));
+            rb.MoveRotation(Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(moveInput), Time.fixedDeltaTime * _moveSpeed));
         }
     }
 
-    void Jump()
+    /// <summary>
+    /// Changes the attribute MoveSpeed from the animator.
+    /// </summary>
+    private void UpdateAnimator()
     {
-        if (!isJumping)
-        {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            isJumping = true;
-            moveSpeed = 3;
-        }
+        _animator.SetFloat("MoveSpeed", moveInput.magnitude);
     }
+    #endregion
 
-    void UpdateAnimator()
-    {
-        // Atualiza os parâmetros do Animator
-        if (isJumping)
-        {
-            animator.SetFloat("MoveSpeed", 0);
-        }
-        else
-        {
-            animator.SetFloat("MoveSpeed", moveInput.magnitude);
-        }
-
-        animator.SetBool("IsJumping", isJumping);
-    }
-
-    void Punch()
-    {
-        animator.SetTrigger("Punch");
-        Invoke(nameof(EnableFirsts), 0.3f);
-    }
-
-    void EnableFirsts()
-    {
-        hands[0].enabled = true;
-        hands[1].enabled = true;
-        Invoke(nameof(DisableFirsts), 0.1f);
-    }
-
-    void DisableFirsts()
-    {
-        hands[0].enabled = false;
-        hands[1].enabled = false;
-    }
-
-    // Callback quando o personagem colide com o chão
-    void OnCollisionEnter(Collision collision)
+    #region COLLIDERS/TRIGGERS
+    /// <summary>
+    /// Callback when the player collides with the floor.
+    /// </summary>
+    private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
-            isJumping = false;
-            moveSpeed = 7;
+            _moveSpeed = 7;
         }
     }
+    #endregion
+
+    #region OTHER METHODS
+    /// <summary>
+    /// Method to change the collor of the player.
+    /// </summary>
+    /// <param name="newColor"></param>
+    public void ChangePlayerColor(Color newColor)
+    {
+        _playerMaterial.materials[0].color = newColor;
+    }
+    #endregion
 }
