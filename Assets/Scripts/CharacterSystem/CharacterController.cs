@@ -29,13 +29,9 @@ public class CharacterController : MonoBehaviour
 
     private void Update()
     {
-
-        
-            moveInput = new Vector3(-_joystick.Vertical(), 0f, _joystick.Horizontal()).normalized;
-
-            UpdateAnimator();
-            MoveCharacter();
-        
+        moveInput = new Vector3(-_joystick.Vertical(), 0f, _joystick.Horizontal()).normalized;
+        UpdateAnimator();
+        MoveCharacter();
     }
     #endregion
 

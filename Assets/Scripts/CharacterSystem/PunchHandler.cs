@@ -90,6 +90,7 @@ public class PunchHandler : MonoBehaviour
                 //Update Game Manager 
                 GameManager.PlayerCash += 10;
                 GameManager.UiManager.UpdateCash();
+                GameManager.CapturedEnemies = 0;
                 GameManager.UiManager.UpdateCapacity();
             }
         }
