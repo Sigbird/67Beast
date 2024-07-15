@@ -7,7 +7,7 @@ public class CharacterController : MonoBehaviour
 {
     // References
     [Tooltip("Base movespeed of the player character")]
-    [SerializeField] private float _moveSpeed = 5f;  
+    [SerializeField] private float _moveSpeed = 5f;
     [Tooltip("Reference of the hand colliders of the character")]
     [SerializeField] private Collider[] _hands;
     [Tooltip("Reference to the material of the player character")]
@@ -29,10 +29,13 @@ public class CharacterController : MonoBehaviour
 
     private void Update()
     {
-        moveInput = new Vector3(-_joystick.Vertical(), 0f, _joystick.Horizontal()).normalized;
 
-        UpdateAnimator();
-        MoveCharacter();
+        
+            moveInput = new Vector3(-_joystick.Vertical(), 0f, _joystick.Horizontal()).normalized;
+
+            UpdateAnimator();
+            MoveCharacter();
+        
     }
     #endregion
 
@@ -42,7 +45,13 @@ public class CharacterController : MonoBehaviour
     /// </summary>
     private void MoveCharacter()
     {
-        rb.MovePosition(transform.position + (moveInput * _moveSpeed * Time.fixedDeltaTime));
+        Vector3 targetPosition = transform.position + (moveInput * _moveSpeed * Time.fixedDeltaTime);
+
+        // Clamp the z position to stay within limits
+        targetPosition.z = Mathf.Clamp(targetPosition.z, -20, 20);
+        targetPosition.x = Mathf.Clamp(targetPosition.x, -9, 9);
+
+        rb.MovePosition(targetPosition);
 
         if (moveInput != Vector3.zero)
         {

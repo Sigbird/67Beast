@@ -2396,6 +2396,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: TerrainLevel
       objectReference: {fileID: 0}
+    - target: {fileID: 6604105102310779244, guid: 2d87d18e867e247429c50bccedea2fc9,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7655059711294471069, guid: 2d87d18e867e247429c50bccedea2fc9,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7655059711294471069, guid: 2d87d18e867e247429c50bccedea2fc9,
+        type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8256108038500936861, guid: 2d87d18e867e247429c50bccedea2fc9,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2445,6 +2460,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8883902070257725999, guid: 2d87d18e867e247429c50bccedea2fc9,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 40.92238
+      objectReference: {fileID: 0}
+    - target: {fileID: 8883902070257725999, guid: 2d87d18e867e247429c50bccedea2fc9,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 2.2474
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
